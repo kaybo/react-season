@@ -1,12 +1,43 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import SeasonDisplay from './SeasonDisplay';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+class App extends React.Component {
+  // constructor(props){
+  //   super(props);//since we are overwriting the react component
+  //               //constructor, we also include super function
+  //   this.state = {lat: null, errorMessage: ''};//only time to do direct assignment to this.state
+  // }
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();
+  state = {lat: null, errorMessage: ''};
+
+  componentDidMount(){
+    window.navigator.geolocation.getCurrentPosition(
+      (position) => {
+        //to update object, we call setState method
+        //WARNING: NEVER DO DIRECT ASSIGNMENT TO OBJECT EG. this.state.lat = ....
+        this.setState({lat: position.coords.latitude});
+      },
+      (err) => {
+        this.setState({errorMessage: err.message});
+      }
+    );
+  }
+
+  // React says we have to define render
+  render(){
+    if(this.state.errorMessage && !this.state.lat){
+      return <div>Error: {this.state.errorMessage}</div>;
+    }
+    if(!this.state.errorMessage && this.state.lat){
+      return <SeasonDisplay lat = {this.state.lat}/>
+    }
+    return <div>Loading</div>;
+  }
+
+};
+
+ReactDOM.render(
+  <App />,
+  document.querySelector('#root')
+);
